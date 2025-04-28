@@ -1,0 +1,7 @@
+{
+  "package": "ErionSoundpack",
+  "version": "0.1.0",
+  "author": "oaken-echo",
+  "title": "Soundpack for Erion MUD.",
+  "outputFile": true
+}

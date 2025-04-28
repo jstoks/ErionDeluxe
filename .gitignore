@@ -1,0 +1,16 @@
+
+## Muddler Build artifacts
+build/
+**/.output
+
+# Using as a checklist for converting events
+MSDP_handler_checklist.xml
+
+# MUSHClient soundpack extension
+# Local copy for reference
+soundpack
+
+# Macos
+.DS_Store
+
+ErionSoundpack/sounds
