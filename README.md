@@ -47,7 +47,7 @@ flowchart LR
   events[Unified Events]
   player[Player Input]
   mudlet[Mudlet App]
-  custom[Custom Hooks]
+  custom[Custom Player Hooks]
 
   server-->triggers
   server-->msdp
@@ -98,5 +98,3 @@ There are two alternatives available. Those options are detailed on the main [ma
 Modern gamers who might be incline to play Erion or MUDs in general tend to be put off by a pure text interface. Erion is already ahead of the curve, but enriching the client by bringing these two packages together will make the game more approachable and fun without sacrificing what makes muds special.
 
 Additionally, Mudlet is a great client with a lot of power, but a lot of quirks as well. Building something meaningful is challenging. Hopefully this package can make custom triggers a little more approachable.
-
-
