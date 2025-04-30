@@ -33,7 +33,32 @@ This repository is broken up into two Mudlet packages. It's done this way becaus
 
 It might make sense to add the UI features to ErionClient or it might make more sense to create another package. At the time of writing there are no UI features.
 
-### Events
+## Mudlet Quirks
+
+Mudlet is very powerful, but a little tricky to work with.
+
+- Packages and files in packages are not loaded in any particular order so it's hard to have one script depend directly on another.
+- Loading scripts with `require` is possible, but if those scripts have an error Mudlet produces a generic error that makes debugging very hard.
+- Muddler makes this extra hard because when you reload the package the memory is not cleared.
+
+This means that each script should be independant and communicate with other script entirely with events. Every script should have fairly strict layout that includes:
+
+- namespace at the top
+- Define functions and Classes globaly or locally
+- Define a handler for boot, `erion.events.client.boot`
+- Define a handler for shutdown, `erion.events.client.shutdown`
+
+### Code Notes
+
+All global variables and functions are defined under the `erion` namespace. For example, `erion.events` defines all the event related variables and classes. This can make fully qualified names very long, however it's easy to define a local alias like so `local craftingEvents = erion.events.game.crafting`
+
+Class definitions should be capialized.
+
+Namespaces need to be defined defensively like this: `erion = erion or {}` or `erion.events = erion.events or {}`
+
+Use named event handlers when possible instead of anonymous ones. Named ones are unique based on their name. This helps prevent things like accidentally declaring duplicates especially in cases where there's an error during shutdown.
+
+## Events
 
 Building a client for Erion and many other MUDs is challenging because triggers have to be created using pattern matching or regular expressions. Erion also partially uses MSDP events. The core of this package unifies triggers and these events into one cohesive set of events that everything else can be built from.
 
@@ -62,15 +87,53 @@ flowchart LR
 
 Events are defined in `ErionClient/src/scripts/ErionClient/events.lua` at the bottom of the file.
 
-#### Event Names
+### Event Names
 
-Event names are taken directly from the MUSHClient soundpack wish serves as a sort of baseline enumeration of all the events of the game. They're added to a hierarchical structure to make it a little easier to find and reference them.
+Event raise from the game have names taken directly from the MUSHClient soundpack wish serves as a sort of baseline enumeration of all the events of the game. They're added to a hierarchical structure to make it a little easier to organize them.
 
 For example:
 
-| Original Name | Event String                    | Event Object                         |
-| ------------- | ------------------------------- | ------------------------------------ |
-| pickaxe       | 'erion.crafting.mining.pickaxe' | erion.events.crafting.mining.pickaxe |
+| Original Name | Event String                    | Event Object                              |
+| ------------- | ------------------------------- | ----------------------------------------- |
+| pickaxe       | 'erion.crafting.mining.pickaxe' | erion.events.game.crafting.mining.pickaxe |
+
+| Event Origin | Event Namespace     |
+| ------------ | ------------------- |
+| Game Server  | erion.events.game   |
+| Game Client  | erion.events.client |
+
+### Client Events
+
+The client defines and uses the following events.
+
+#### Boot
+
+**erion.events.client.boot**
+
+Raised after the profile is loaded or the package is loaded after an install. 
+
+Every script should define a single handler for this event to start executing.
+
+- Calling functions and instantiating classes defined in the global scope.
+- Defining event handlers.
+- Creating Mudlet entities
+
+#### Init
+
+**erion.events.client.init**
+
+Raised directly after the boot event. It's meant to be used for any setup that would require all scripts to be booted.
+
+- Raise event that other scripts might want to receive.
+
+#### Shutdown
+
+**erion.events.client.shutdown**
+
+Raised when a profile is closed or when a package is uninstalled. This will be raised when muddler reloads the package in development.
+
+- Save state to disk.
+- Destroy Mudlet objects.
 
 ## Contributing
 
