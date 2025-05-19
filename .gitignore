@@ -14,3 +14,9 @@ soundpack
 .DS_Store
 
 ErionSoundpack/sounds
+
+# Ignore Muddler executables
+muddler/bin
+muddler/lib
+
+sounds

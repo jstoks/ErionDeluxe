@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-pushd ~/projects/mudlet/erion/ErionClient
-../../bin/muddle
-popd

@@ -10,19 +10,18 @@
 erion = erion or {}
 erion.events = erion.events or {}
 
--- Defines an Event "class" that can raise itself.
-erion.Event = erion.Event or {
+-- Defines a container for all events
+erion.EventSystem = erion.EventSystem or {
   triggerIds = {},
   msdpNames = {},
 }
 
-erion.Event.__index = erion.Event
-
-function erion.Event.clearAll()
+-- "Static" method to clear all events
+function erion.EventSystem:clearAll()
   -- Clear triggers
-  for key, triggerIds in pairs(erion.Event.triggerIds) do
+  for key, triggerIds in pairs(self.triggerIds) do
     if triggerIds then
-      for _, id in ipairs(idList) do
+      for _, id in ipairs(triggrIds) do
         if id then
           killTrigger(id)
         end
@@ -30,49 +29,32 @@ function erion.Event.clearAll()
     end
   end
 
-  erion.Event.triggerIds = {}
+  self.triggerIds = {}
 
   -- Clear Events
-  for names in ipairs(erion.Event.msdpNames) do
+  for _,names in ipairs(self.msdpNames) do
     deleteNamedEventHandler(unpack(names))
   end
-  erion.Event.msdpNames = {}
+  self.msdpNames = {}
 end
 
-function erion.Event:new(prefix, keyword, eventDef)
-  obj = {
-    name = eventDef.name,
-    description = eventDef.description,
-    keyword = keyword,
-    evKey = prefix .. '.' .. keyword,
-  }
-
-  setmetatable(obj, self)
-
-  return obj
-end
-
-function erion.Event:raise(...)
-  raiseEvent(self.evKey, ...)
-end
-
-function erion.Event.addTriggerId(key, id)
-  if not erion.Event.triggerIds[key] then
-    erion.Event.triggerIds[key] = {}
+function erion.EventSystem:addTriggerId(key, id)
+  if not self.triggerIds[key] then
+    self.triggerIds[key] = {}
   end
-  table.insert(erion.Event.triggerIds[key], id)
+  table.insert(self.triggerIds[key], id)
 end
 
-function erion.Event.addMSDPHandler(userName, eventName)
-  table.insert(erion.Event.msdpNames, {userName, eventName})
+function erion.EventSystem:addMSDPHandler(userName, eventName)
+  table.insert(self.msdpNames, {userName, eventName})
 end
 
-function erion.Event.defineEventTable(namespace, eventTable)
-  erion.events[namespace] = erion.Event.buildEventTable('erion.' .. namespace, eventTable)
+function erion.EventSystem:defineEventTable(namespace, eventTable)
+  erion.events[namespace] = self:buildEventTable('erion.' .. namespace, eventTable)
 end
 
 -- Walk the table of events and initialize actual event objects
-function erion.Event.buildEventTable(prefix, eventTable)
+function erion.EventSystem:buildEventTable(prefix, eventTable)
   local events = {}
   for key, value in pairs(eventTable) do 
     if value.name and value.description then
@@ -81,10 +63,46 @@ function erion.Event.buildEventTable(prefix, eventTable)
         value.eventConnection(events[key])
       end
     else
-      events[key] = erion.Event.buildEventTable(prefix .. '.' .. key, value)
+      events[key] = self:buildEventTable(prefix .. '.' .. key, value)
     end
   end
   return events
+end
+
+
+erion.Event = erion.Event or {}
+erion.Event.__index = erion.Event
+function erion.Event:new(prefix, keyword, eventDef)
+  obj = {
+    name = eventDef.name,
+    description = eventDef.description,
+    keyword = keyword,
+    eventKey = prefix .. '.' .. keyword,
+  }
+
+  setmetatable(obj, self)
+
+  return obj
+end
+
+function erion.Event:raise(...)
+  raiseEvent(self.eventKey, ...)
+end
+
+function erion.Event:register(namespace, callback, once)
+  local handlerName = self:handlerName(namespace)
+  debugc("Registering: " .. handlerName)
+  registerNamedEventHandler(erion.System.PackageName, handlerName, self.eventKey, callback, once)
+end
+
+function erion.Event:unregister(namespace)
+  local handlerName = self:handlerName(namespace)
+  debugc("Unregistering: " .. handlerName)
+  deleteNamedEventHandler(erion.System.PackageName, handlerName)
+end
+
+function erion.Event:handlerName(namespace)
+  return namespace .. '.handler-' .. self.eventKey
 end
 
 -- Helper function to slightly shorten event table definition
@@ -96,33 +114,34 @@ local function ev(name, description, eventConnection)
   }
 end
 
-local function someTrigger(patterns, callback, makeTrigger)
+local function eventTrigger(patterns, callback, makeTrigger)
   return function(event)
     callback = callback or function () event:raise() end
+    debugc("Event Trigger: " .. event.keyword)
     if type(patterns) == 'string' then
-      erion.Event.addTriggerId(event.keyword, makeTrigger(patterns, callback))
+      erion.EventSystem:addTriggerId(event.keyword, makeTrigger(patterns, callback))
     else
       for _, pattern in ipairs(patterns) do
-        erion.Event.addTriggerId(event.keyword, makeTrigger(pattern, callback))
+        erion.EventSystem:addTriggerId(event.keyword, makeTrigger(pattern, callback))
       end
     end
   end
 end
 
 local function regexTrigger(patterns, callback)
-  return someTrigger(patterns, callback, tempRegexTrigger)
+  return eventTrigger(patterns, callback, tempRegexTrigger)
 end
 
 local function beginTrigger(patterns, callback)
-  return someTrigger(patterns, callback, tempBeginOfLineStringTrigger)
+  return eventTrigger(patterns, callback, tempBeginOfLineTrigger)
 end
 
 local function subTrigger(patterns, callback)
-  return someTrigger(patterns, callback, tempTrigger)
+  return eventTrigger(patterns, callback, tempTrigger)
 end
 
 local function exactTrigger(patterns, callback)
-  return someTrigger(patterns, callback, tempExactMatchTrigger)
+  return eventTrigger(patterns, callback, tempExactMatchTrigger)
 end
 
 local function msdpHandler(varName, callback)
@@ -140,19 +159,19 @@ local function msdpHandler(varName, callback)
     else
       -- Otherwise we can ask after we've connected
       registerNamedEventHandler('erion', reportName, 'sysConnectionEvent', function () sendMSDP("REPORT", varName) end)
-      erion.Event.addMSDPHandler('erion', reportName)
+      erion.EventSystem:addMSDPHandler('erion', reportName)
     end
     registerNamedEventHandler('erion', handlerName, msdpEvent, callback)
-    erion.Event.addMSDPHandler('erion', handlerName)
+    erion.EventSystem:addMSDPHandler('erion', handlerName)
   end
 end
 
 -- Attempt to clear any orphaned handlers
-erion.Event.clearAll()
+erion.EventSystem:clearAll()
 
 -- Client events that are initiated within the client
 -- These are not raised directly from input from the game itself.
-erion.Event.defineEventTable('client', {
+erion.EventSystem:defineEventTable('client', {
   boot = ev('Boot', 'Boots the client. Useful for running code after all scripts have executed.'),
   init = ev('Initialize', 'Initialize the client. Primarily used for loading data.'), 
   shutdown = ev('Shutdown', 'Shutdown the system. Save client state and clean up.')
@@ -164,7 +183,7 @@ erion.Event.defineEventTable('client', {
 -- The nested structure here is purely for organization. Not to prevent name collisions.
 -- Add more events here when they're added to the game.
 -- These are raised from data from the server only.
-erion.Event.defineEventTable('game', {
+erion.EventSystem:defineEventTable('game', {
   crafting = {
     animals = {
       chickenegg = ev('ChickenEgg', 'Collecting a chicken egg.', msdpHandler('CHICKEN_EGG')),
@@ -245,6 +264,9 @@ erion.Event.defineEventTable('game', {
   }
 })
 
-
-registerAnonymousEventHandler('erion.client.shutdown', erion.Event.clearAll, true)
+registerAnonymousEventHandler('erion.client.boot', function ()
+  erion.events.client.shutdown:register('sounds', function ()
+    erion.EventSystem:clearAll()
+  end)
+end)
 

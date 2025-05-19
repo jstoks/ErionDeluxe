@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-pushd ~/projects/mudlet/erion/ErionSoundpack/
-../../bin/muddle
-gcp -R -u -p ./sounds ~/.config/mudlet/profiles/Erion\ Client/ErionSoundpack
-popd

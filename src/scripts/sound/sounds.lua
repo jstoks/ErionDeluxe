@@ -1,15 +1,15 @@
 erion = erion or {}
 
 erion.sounds = {
-  dir = getMudletHomeDir() .. '/ErionSoundpack/sounds/',
+  dir = getMudletHomeDir() .. '/ErionDeluxe/sounds/',
   ext = '.aac',
   bootHandler = nil,
 }
 
 function erion.sounds.boot()
-  erion.sounds.dispatcher = erion.system:dispatcher('@PKGNAME@', 'sounds')
-
-  erion.sounds:bootGame(erion.events.game)
+  if erion.events.game then
+    erion.sounds:bootGame(erion.events.game)
+  end
 end
 
 function erion.sounds:bootGame(game)
@@ -33,17 +33,17 @@ function erion.sounds:bootAnimals(animals)
   self:registerEffect(animals.shearsheep, self:soundRandomizer('crafting/animals/shear', 1, 3))
 end
 
-function erion.sounds.bootCleaning(cleaning)
+function erion.sounds:bootCleaning(cleaning)
   self:registerEffect(cleaning.cleancloth, 'crafting/cleaning/cleancloth')
   self:registerEffect(cleaning.cleanfloor, 'crafting/cleaning/cleanfloor')
 end
 
-function erion.sounds.bootCooking(cooking)
+function erion.sounds:bootCooking(cooking)
   self:registerEffect(cooking.cookburnt, 'crafting/cooking/burnt')
   self:registerEffect(cooking.cooksizzle, 'crafting/cooking/sizzle')
 end
 
-function erion.sounds.bootCreation(creation)
+function erion.sounds:bootCreation(creation)
   self:registerEffect(creation.applyresin, 'crafting/creation/apply_resin')
   self:registerEffect(creation.arrangerocks, 'crafting/creation/arrange_rocks')
   self:registerEffect(creation.arrange, 'crafting/creation/arrange')
@@ -91,26 +91,31 @@ function erion.sounds:bootMining(mining)
   self:registerEffect(mining.mininggem, 'crafting/mining/gem')
 end
 
-
-
 function erion.sounds:registerEffect(event, soundFile, settings)
-  if not event or not event.evKey then
+  if not event then
     debugc("Event missing for sound:" .. soundFile)
+    return
   end
+
   settings = settings or {}
   local soundSettings = {}
   for key, value in pairs(settings) do
     soundSettings[key] = vaue
   end
-  self.dispatcher:registerHandler(event.evKey, function ()
-    if type(soundFile) == 'function' then
+  if type(soundFile) == 'function' then
+    event:register('sounds', function ()
       soundSettings.name = soundFile()
-    else
-      soundSettings.name = self.dir .. soundFile:gsub("^/","") .. self.ext
-    end
-    debugc("Playing Sound: " .. soundSettings.name)
-    playSoundFile(soundSettings)
-  end)
+      debugc("Playing Sound: " .. soundSettings.name)
+      playSoundFile(soundSettings)
+    end)
+  else
+    soundSettings.name = self.dir .. soundFile:gsub("^/","") .. self.ext
+    event:register('sounds', function ()
+      debugc("Playing Sound: " .. soundSettings.name)
+      playSoundFile(soundSettings)
+    end)
+  end
+
 end
 
 function erion.sounds:soundRandomizer(soundPath, min, max)
@@ -119,8 +124,4 @@ function erion.sounds:soundRandomizer(soundPath, min, max)
   end
 end
 
-if erion.sounds.bootHandlerId then
-  killAnonymousEventHandler(erion.sounds.bootHandlerId)
-end
-
-erion.sounds.bootHandlerId = registerAnonymousEventHandler('erion.client.boot', erion.sounds.boot, true)
+registerAnonymousEventHandler('erion.client.boot', erion.sounds.boot, true)

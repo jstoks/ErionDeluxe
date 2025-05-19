@@ -1,7 +1,0 @@
-{
-  "package": "ErionClient",
-  "version": "0.1.0",
-  "author": "oaken-echo",
-  "title": "Base client package for Erion MUD",
-  "outputFile": true
-}

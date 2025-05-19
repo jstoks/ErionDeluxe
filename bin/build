@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+if [ ! -e "mfile" ]; then
+  echo "Please run from the project root."
+fi
+
+if [ ! -e "muddler/bin/muddle" ]; then
+  echo "Please install muddler to a folder called 'muddler' in the project root"
+fi
+
+muddler/bin/muddle
+
+profile="~/.config/mudlet/Profiles/ErionDeluxe"
+
+if [ -e "$profile" ]; then
+  gcp -R -u -p ./sounds "$profile"
+fi
