@@ -45,7 +45,9 @@ function erion.System:shutdown()
 end
 
 function erion.System:raiseBoot()
+  debugc("---=== BOOTING ===---")
   raiseEvent('erion.client.boot')
+  debugc("---=== INITIALIZE ===---")
   raiseEvent('erion.client.init')
 
   deleteNamedEventHandler(self.PackageName, 'handleSysInstallPackage')

@@ -2,6 +2,7 @@
   "package": "ErionDeluxe",
   "version": "0.2.0",
   "author": "jstoks",
-  "title": "Enhanced client package for Erion MUD",
+  "title": "ErionDeluxe",
+  "description": "Fully featured package for Erion MUD",
   "outputFile": true
 }

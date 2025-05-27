@@ -21,7 +21,7 @@ function erion.EventSystem:clearAll()
   -- Clear triggers
   for key, triggerIds in pairs(self.triggerIds) do
     if triggerIds then
-      for _, id in ipairs(triggrIds) do
+      for _, id in ipairs(triggerIds) do
         if id then
           killTrigger(id)
         end
@@ -266,9 +266,9 @@ erion.EventSystem:defineEventTable('game', {
       feather = ev("Feather", "Feather of liberation from foraging.", msdpHandler('FEATHER')),
       foundnothing = ev("ForageFoundNothing", "Found nothing useful while foraging.", exactTrigger("You didn't find anything useful.")),
       spotgem = ev("ForageGem", "Find a gem while foraging.", regexTrigger({
-        "^You discover.*among a patch of stones\\!$",
-        "^You find.*gleaming at the bottom of a puddle\\!$"
-        "^You spot.*tucked inside the knothole of a tree\\!$"
+        "^You discover.*among a patch of stones!$",
+        "^You find.*gleaming at the bottom of a puddle!$",
+        "^You spot.*tucked inside the knothole of a tree!$",
       })),
       leafsnarl = ev("ForageLeafSnarl", "Clear away leaves while foraging and monster jumps out and snarls.", regexTrigger("^You clear away a pile of leaves and.*leaps forth with a snarl!$")),
       liftbranch = ev("ForageLiftBranch", "Lifting a branch while foraging.", exactTrigger("You lift a low branch of a tree and examine the ground.")),
@@ -349,8 +349,8 @@ erion.EventSystem:defineEventTable('game', {
     },
     woodworking = {
       chop = ev("Chop", "Chop down a tree.", regexTrigger({
-        "^You swing.*and create the first notch in.*"
-        "^You swing the axe at.*\\.$"
+        "^You swing.*and create the first notch in.*",
+        "^You swing the axe at.*\\.$",
       })),
       hammermetal = ev("CraftHammerMetal", "Hammering metal materials.", msdpHandler('HAMMER_METAL')),
       hammerwood = ev("CraftHammerWood", "Hammering wood materials.", msdpHandler('HAMMER_WOOD')),
@@ -375,10 +375,3 @@ erion.EventSystem:defineEventTable('game', {
     woven = ev("CraftWoven", "Finish weaving strands of magic together.", regexTrigger("^You finish weaving the strands together, creating.*\\.$")),
   }
 })
-
-registerAnonymousEventHandler('erion.client.boot', function ()
-  erion.events.client.shutdown:register('sounds', function ()
-    erion.EventSystem:clearAll()
-  end)
-end)
-

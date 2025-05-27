@@ -7,6 +7,8 @@ erion.sounds = {
 }
 
 function erion.sounds.boot()
+  debugc('Booting: Sounds')
+
   if erion.events.game then
     erion.sounds:bootGame(erion.events.game)
   end
@@ -214,4 +216,4 @@ function erion.sounds:soundRandomizer(soundPath, min, max)
   end
 end
 
-registerAnonymousEventHandler('erion.client.boot', erion.sounds.boot, true)
+registerNamedEventHandler("@PKGNAME@", 'sounds.handler-erion.client.boot', 'erion.client.boot', erion.sounds.boot, true)
