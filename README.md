@@ -17,36 +17,27 @@ This package is not ready to be used by an average player just looking to play. 
 
 ### Checklist
 
-- [ ] Code Foundation ~ 50%
-- [ ] Event Unification ~ 5%
-- [ ] Sound Effects ~ 5%
+- [ ] Code Foundation ~ 20%
+- [ ] Event Unification ~ 10%
+- [ ] Sound Effects ~ 10%
 - [ ] Music ~ 0%
 - [ ] UI ~ 0%
 - [ ] Commands ~ 0%
-
-## Structure
-
-This repository is broken up into two Mudlet packages. It's done this way because the soundpack is over a gig and some people might not want sounds at all.
-
-- ErionClient
-- ErionSoundpack
-
-It might make sense to add the UI features to ErionClient or it might make more sense to create another package. At the time of writing there are no UI features.
 
 ## Mudlet Quirks
 
 Mudlet is very powerful, but a little tricky to work with.
 
 - Packages and files in packages are not loaded in any particular order so it's hard to have one script depend directly on another.
-- Loading scripts with `require` is possible, but if those scripts have an error Mudlet produces a generic error that makes debugging very hard.
+- Loading resource scripts with `require` is possible, but if those scripts have an error Mudlet produces a generic error that makes debugging very hard.
 - Muddler makes this extra hard because when you reload the package the memory is not cleared.
 
-This means that each script should be independant and communicate with other script entirely with events. Every script should have fairly strict layout that includes:
+This means that each script should be independent and communicate with other script entirely with events. Every script should have fairly strict layout that includes:
 
 - namespace at the top
 - Define functions and Classes globaly or locally
-- Define a handler for boot, `erion.events.client.boot`
-- Define a handler for shutdown, `erion.events.client.shutdown`
+- Define a handler for boot, `erion.events.client.boot or 'client.boot'`
+- Define a handler for shutdown, `erion.events.client.shutdown or 'client.shutdown'`
 
 ### Code Notes
 
@@ -95,12 +86,17 @@ For example:
 
 | Original Name | Event String                    | Event Object                              |
 | ------------- | ------------------------------- | ----------------------------------------- |
-| pickaxe       | 'erion.crafting.mining.pickaxe' | erion.events.game.crafting.mining.pickaxe |
+| pickaxe       | 'crafting.mining.pickaxe'       | erion.events.game.crafting.mining.pickaxe |
 
-| Event Origin | Event Namespace     |
-| ------------ | ------------------- |
-| Game Server  | erion.events.game   |
-| Game Client  | erion.events.client |
+| Event Origin | Event Namespace     | Description | 
+| ------------ | ------------------- | -------------------------------------------------------------------------------------------- |
+| Game Server  | erion.events.game   | These are events sent directly from the server as 1-to-1 as possible using triggrs or MSDP.  |
+| Game Client  | erion.events.client | These are events relatd to the client itself. Anything not expicitly tied to the game        |
+| Game State   | erion.events.state  | These are events related to the local state of the game.                                     |
+
+
+- State updates are usually caused by game events.
+- By listening for state events it's clear that the client's 
 
 ### Client Events
 
@@ -134,6 +130,27 @@ Raised when a profile is closed or when a package is uninstalled. This will be r
 
 - Save state to disk.
 - Destroy Mudlet objects.
+
+### State Events
+
+#### Character
+
+**erion.events.state.character**
+
+Raised when the character's data is updated.
+
+- HP, MP, XP
+- Stats, Debuffs
+
+#### Location
+
+**erion.events.state.location**
+
+Raised when the location of the character is updated
+
+- Room, Area, etc.
+- Exits
+- Running status
 
 ## Contributing
 
