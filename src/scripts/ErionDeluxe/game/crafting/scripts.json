@@ -1,0 +1,52 @@
+[
+  {
+    "name": "animals",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "cleaning",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "cooking",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "creation",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "foraging",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "gardening",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "leatherworking",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "mining",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "woodworking",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "wool",
+    "isActive": true,
+    "isFolder": false
+  }
+]

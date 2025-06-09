@@ -1,5 +1,61 @@
 erion = erion or {}
 
+local util = require("@PKGNAME@.util")
+erion.sounds = erion.sounds or {
+  dir = getMudletHomeDir() .. '/ErionDeluxe/sounds/',
+  ext = '.aac',
+  bootHandler = nil,
+}
+
+local sounds = erion.sounds
+
+function erion.sounds:onBoot()
+  erion.module:define('sounds', self)
+end
+
+function sounds:onFinal()
+  erion.sounds = nil
+end
+
+function erion.sounds:registerEffect(event, soundFile, settings)
+  if not event then
+    debugc("Event missing for sound:" .. soundFile)
+    return
+  end
+
+  settings = settings or {}
+  local soundSettings = {}
+  for key, value in pairs(settings) do
+    soundSettings[key] = value
+  end
+  if type(soundFile) == 'function' then
+    event:register('sounds', function ()
+      soundSettings.name = soundFile()
+      debugc("Playing Sound: " .. soundSettings.name)
+      playSoundFile(soundSettings)
+    end)
+  else
+    soundSettings.name = self.dir .. soundFile:gsub("^/","") .. self.ext
+    event:register('sounds', function ()
+      debugc("Playing Sound: " .. soundSettings.name)
+      playSoundFile(soundSettings)
+    end)
+  end
+
+end
+
+function erion.sounds:soundRandomizer(soundPath, min, max)
+  return function ()
+    return self.dir .. soundPath .. math.random(min, max) .. self.ext
+  end
+end
+
+registerNamedEventHandler(util.handlerTuple('sounds','erion.system.boot', function () erion.sounds:onBoot() end))
+
+--[[
+
+erion = erion or {}
+
 erion.sounds = {
   dir = getMudletHomeDir() .. '/ErionDeluxe/sounds/',
   ext = '.aac',
@@ -216,4 +272,5 @@ function erion.sounds:soundRandomizer(soundPath, min, max)
   end
 end
 
-registerNamedEventHandler("@PKGNAME@", 'sounds.handler-erion.client.boot', 'erion.client.boot', erion.sounds.boot, true)
+registerNamedEventHandler("@PKGNAME@", 'sounds.handler-erion.erion.system.boot', 'erion.erion.system.boot', erion.sounds.boot, true)
+--]]

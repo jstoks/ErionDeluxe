@@ -36,7 +36,7 @@ This means that each script should be independent and communicate with other scr
 
 - namespace at the top
 - Define functions and Classes globaly or locally
-- Define a handler for boot, `erion.events.client.boot or 'client.boot'`
+- Define a handler for boot, `erion.events.erion.system.boot or 'erion.system.boot'`
 - Define a handler for shutdown, `erion.events.client.shutdown or 'client.shutdown'`
 
 ### Code Notes
@@ -104,7 +104,7 @@ The client defines and uses the following events.
 
 #### Boot
 
-**erion.events.client.boot**
+**erion.events.erion.system.boot**
 
 Raised after the profile is loaded or the package is loaded after an install. 
 

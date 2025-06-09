@@ -20,3 +20,6 @@ muddler/bin
 muddler/lib
 
 sounds
+
+# Mudlet lua files
+library

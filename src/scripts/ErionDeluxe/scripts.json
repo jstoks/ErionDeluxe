@@ -1,0 +1,27 @@
+[
+  {
+    "name": "events",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "module",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "sounds",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "system",
+    "isActive": true,
+    "isFolder": false
+  },
+  {
+    "name": "triggers",
+    "isActive": true,
+    "isFolder": false
+  }
+]
